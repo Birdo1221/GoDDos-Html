@@ -44,7 +44,7 @@ To get started with this, follow these steps:
    
    ```
 
-4. **Access the Web Interface:**
+3. **Access the Web Interface:**
 Open your web browser and go to http://localhost:80.
 
 *Dependencies / Configuration*
@@ -58,7 +58,7 @@ Open your web browser and go to http://localhost:80.
 
   ```
 
-5. **Usage**
+4. **Usage**
 ```
 - Register a user account to access the controller dashboard.
 - Login with your credentials to access the dashboard.
