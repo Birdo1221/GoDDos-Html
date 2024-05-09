@@ -1,6 +1,6 @@
 # GoDDos-Html
 
-GoDDos-Html is a lightweight web-page controller botnet written in Go, designed for simple yet effective management of bots through a web interface.
+GoDDos-Html is a lightweight web-page controller Ddos botnet written in Go, designed for simple yet effective management of bots through a web interface.
 
 ## Features
 
