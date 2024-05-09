@@ -1,34 +1,34 @@
 # GoDDos-Html
 
-This is a simple web-page controller botnet written in Go. It allows you to control bots through a web interface. The botnet consists of a controller server and bots that connect to it.
+GoDDos-Html is a lightweight web-page controller botnet written in Go, designed for simple yet effective management of bots through a web interface.
 
 ## Features
 
-- User authentication and authorization
-- User registration
-- User profile management
-- Sending commands to bots
-- Bot authentication
-- Bot command execution
+- **User Management:** Authenticate, authorize, and manage user accounts.
+- **Command Distribution:** Send commands from the controller to connected bots.
+- **Secure Authentication:** Utilizes password hashing and session management for secure user authentication.
+- **Easy Setup:** Straightforward steps to get started with minimal configuration.
 
 ## Getting Started
 
-To get started with this, follow these steps:
+To deploy and use GoDDos-Html, follow these steps:
 
 1. **Clone the Repository:**
-   ```
-   
+
+   ```sh
    git clone https://github.com/your_username/web-page-controller-botnet.git
    cd web-page-controller-botnet
    go build
    ./web-page-controller
    ```
-2. **Mysql Set-up**
-   ```
-   CREATE DATABASE IF NOT EXISTS net1
 
-   USE net1
-   
+2. **Mysql Set-up:**
+
+   ```sql
+   CREATE DATABASE IF NOT EXISTS net1;
+
+   USE net1;
+
    CREATE TABLE IF NOT EXISTS users (
        id INT AUTO_INCREMENT PRIMARY KEY,
        username VARCHAR(50) UNIQUE NOT NULL,
@@ -41,40 +41,28 @@ To get started with this, follow these steps:
        FOREIGN KEY (user_id) REFERENCES users(id),
        session_key VARCHAR(60) UNIQUE NOT NULL
    );
-   
    ```
 
 3. **Access the Web Interface:**
-Open your web browser and go to http://localhost:80.
 
-*Dependencies / Configuration*
-    
+   Open your web browser and navigate to [http://localhost:80](http://localhost:80).
 
-  ```
-    Go  +  MySQL
+4. **Dependencies / Configuration:**
 
-    Database: The botnet uses a MySQL database. You can configure the database connection in the 
-    initDB() function
+   - **Go + MySQL:** Ensure Go and MySQL are installed and accessible.
+   - **Database Configuration:** Configure the database connection in the `initDB()` function.
 
-  ```
+5. **Usage:**
 
-4. **Usage**
-```
-- Register a user account to access the controller dashboard.
-- Login with your credentials to access the dashboard.
-- From the dashboard, you can send commands to bots.
-```
+   - Register a user account to access the controller dashboard.
+   - Login with your credentials to access the dashboard.
+   - Use the dashboard to send commands to connected bots.
 
-```
 ## Contributing
 
-Contributions are welcome! If you have any ideas, improvements, or feature requests, feel free to open an issue or submit a pull request.
+Contributions, ideas, and feature requests are welcome! Please open an issue or submit a pull request to contribute.
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 ```
-
-
-
-
