@@ -18,7 +18,7 @@ To deploy and use GoDDos-Html, follow these steps:
 
 1. **Clone the Repository:**
 
-   ```sh
+   ```
    git clone https://github.com/your_username/web-page-controller-botnet.git
    cd web-page-controller-botnet
    go build
