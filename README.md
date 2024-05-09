@@ -64,5 +64,5 @@ Contributions, ideas, and feature requests are welcome! Please open an issue or 
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ```
