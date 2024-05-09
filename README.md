@@ -22,6 +22,25 @@ To get started with this, follow these steps:
    cd web-page-controller-botnet
    go build
    ./web-page-controller
+   ```
+2. **Mysql Set-up**
+   ```
+   CREATE DATABASE IF NOT EXISTS net1
+
+   USE net1
+   
+   CREATE TABLE IF NOT EXISTS users (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       username VARCHAR(50) UNIQUE NOT NULL,
+       password_hash VARCHAR(60) NOT NULL
+   );
+   
+   CREATE TABLE IF NOT EXISTS sessions (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       user_id INT NOT NULL,
+       FOREIGN KEY (user_id) REFERENCES users(id),
+       session_key VARCHAR(60) UNIQUE NOT NULL
+   );
    
    ```
 
