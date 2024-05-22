@@ -75,6 +75,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Images / References:
 
+# ***Starting***:
+![StartingGit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/177dc1fa-ab30-4e49-bc6d-3d8807c77c2a)
 # ***Register***:
 ![Registergit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/69f3d100-12d4-4d2c-ab58-03a3b8af2eac)
 # ***Login***:
