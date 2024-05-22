@@ -18,6 +18,8 @@ To deploy and use GoDDos-Html, follow these steps:
 
 *You will need to Setup the mysql Database before running the ./web-controller*
 
+*Change Port and IP if need be on Line 35.*
+
 1. **Clone the Repository:**
 
    ```
@@ -51,7 +53,6 @@ To deploy and use GoDDos-Html, follow these steps:
 3. **Access the Web Interface:**
 
    Open your web browser and navigate to [http://localhost:80](http://localhost:80).
-   Change Port and IP if need be on Line 35.
 
 5. **Dependencies / Configuration:**
 
