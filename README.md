@@ -81,4 +81,5 @@ Images / References:
 # ***Profile***:
 ![Profilegit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/55e52bfa-112f-4354-9c87-2df5bd87acae)
 # ***Dashboard***:
+![dashgit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4)
 ![dashgit](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/775f8c33-e777-47cb-8876-bdb5eb7cc5ee)
