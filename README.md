@@ -21,8 +21,8 @@ To deploy and use GoDDos-Html, follow these steps:
    ```
    git clone https://github.com/Birdo1221/GoDDos-Html.git
    cd GoDDos-Html
-   go build -o
-   ./web-page-controller
+   go build -o web-controller
+   ./web-controller
    ```
 
 2. **Mysql Set-up:**
