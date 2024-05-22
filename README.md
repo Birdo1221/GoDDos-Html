@@ -21,8 +21,8 @@ To deploy and use GoDDos-Html, follow these steps:
    ```
    git clone https://github.com/Birdo1221/GoDDos-Html.git
    cd web-page-controller-botnet
-   go build
    cd GoDDos-Html
+   go build
    ./web-page-controller
    ```
 
