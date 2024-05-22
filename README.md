@@ -16,6 +16,8 @@ GoDDos-Html is a lightweight web-page controller Ddos botnet written in Go, desi
 
 To deploy and use GoDDos-Html, follow these steps:
 
+*You will need to Setup the mysql Database before running the ./web-controller*
+
 1. **Clone the Repository:**
 
    ```
