@@ -1,4 +1,4 @@
-## Depreciated
+## This project is Depreciated and Wont Recive further updates
 
 # GoDDos-Html
 
