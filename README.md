@@ -1,4 +1,4 @@
-# STILL FINISHING
+### Depreciated
 
 # GoDDos-Html
 
