@@ -11,9 +11,8 @@ GoDDos-Html is a lightweight web-page botnet controller written in Go, designed 
 - **Secure Authentication:** Utilizes password hashing and session management.
 - **Easy Setup:** Straightforward steps to get started with minimal configuration.
 
-**Images / References:**
-
-# ***REF:🕗***
+# **Images / References:**
+## ***References:🕗***
 ![StartingGit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/177dc1fa-ab30-4e49-bc6d-3d8807c77c2a)
 # ***Register***:
 ![Registergit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/69f3d100-12d4-4d2c-ab58-03a3b8af2eac)
