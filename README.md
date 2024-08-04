@@ -1,4 +1,4 @@
-### Depreciated
+## Depreciated
 
 # GoDDos-Html
 
