@@ -1,5 +1,8 @@
 ## This project is Depreciated and Wont Recive further updates
 
+Update : Deprecation of Insecure Practices
+This involve the misuse of ServerConfig.PublicKeyCallback, leading to an authorization bypass in golang.org/x/crypto. If the PublicKeyCallback function is implemented to return nil, nil unconditionally, it signifies successful authentication without validating the client's public key. This has been noted for safety reasons for this project.
+
 # GoDDos-Html
 
 GoDDos-Html is a lightweight web-page botnet controller written in Go, designed for simplicity by sending attacks to the 'Bots' / 'Servers' through a web-interface.
