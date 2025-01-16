@@ -13,15 +13,8 @@ GoDDos-Html is a lightweight web-page botnet controller written in Go, designed 
    `The images contain a domain: *Birdo.local*, which is a local domain set up for project testing.`
 
 #### Happy 2025, This issue has been fixed, ( 🤡 Lied about Further updates )
-
-### Deprecation of Insecure Practic (Fixed 10/1/2025) 
-This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
-
-Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
-
-![image](https://github.com/user-attachments/assets/ed984ee0-8a6c-48ce-9c95-6db6b4ff2104)
-
-   
+##   [Misuse the ServerConfig.PublicKeyCallback callback] Go further down to read about.
+  
 ### ***Dashboard***:
 ![dashgit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4)
 ![StartingGit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/177dc1fa-ab30-4e49-bc6d-3d8807c77c2a)
@@ -37,6 +30,14 @@ Although this was not an immediate issue in the project, it has been flagged for
 
 ### ***Index***:
 ![Logingit](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/e9459072-2395-4cc1-944d-9fbcd10ac2de)
+
+### Deprecation of Insecure Practic (Fixed 10/1/2025) 
+This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
+
+Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
+
+![image](https://github.com/user-attachments/assets/ed984ee0-8a6c-48ce-9c95-6db6b4ff2104)
+
 
 ## Getting Started
 
