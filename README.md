@@ -1,6 +1,6 @@
 ## This Project is Deprecated and Won't Receive Further Updates
 
-Happy 2025 Fix This issue has been fixed
+Happy 2025 Fix This issue has been fixed, ( 🤡 Lied about Further updates )
 
 ### Update: Deprecation of Insecure Practic
 This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key. This has been noted for safety reasons for this project.
