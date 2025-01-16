@@ -12,7 +12,7 @@ GoDDos-Html is a lightweight web-page botnet controller written in Go, designed 
 ## **Images / References 🖼️**
    `The images contain a domain: *Birdo.local*, which is a local domain set up for project testing.`
 
-## Happy 2025, This issue has been fixed, ( 🤡 Lied about Further updates )
+## Happy 2025, This issue has been fixed, ( 🤡 Lied about no Further updates )
 ###   [Misuse the ServerConfig.PublicKeyCallback callback] Go further down to read about.
   
 ### ***Dashboard***:
