@@ -1,5 +1,5 @@
 ## This Project is Deprecated
-# But Project has been given an update on based on (10/1/2025)
+### But Project has been given an update on based on (10/1/2025)
 # GoDDos-Html
 
 GoDDos-Html is a lightweight web-page botnet controller written in Go, designed for simplicity by sending attacks to the 'Bots' / 'Servers' through a web-interface.
