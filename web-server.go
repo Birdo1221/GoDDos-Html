@@ -265,7 +265,7 @@ func clearSessionCookie(w http.ResponseWriter) {
 // initDB initializes the database connection.
 func initDB() {
 	var err error
-	db, err = sql.Open("mysql", "Birdo:Birdo1221.b!@tcp(192.168.1.34:3308)/net1")
+	db, err = sql.Open("mysql", "Birdo:password@tcp(192.168.1.34:3308)/net1")
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
