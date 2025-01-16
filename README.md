@@ -15,7 +15,7 @@ GoDDos-Html is a lightweight web-page botnet controller written in Go, designed 
 
 #### Happy 2025, This issue has been fixed, ( 🤡 Lied about Further updates )
 
-### Update: Deprecation of Insecure Practic (Fixed 10/1/2025) 
+### Deprecation of Insecure Practic (Fixed 10/1/2025) 
 This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
 
 Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
