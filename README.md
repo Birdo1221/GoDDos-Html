@@ -1,14 +1,4 @@
 ## This Project is Deprecated and Won't Receive Further Updates
-
-Happy 2025 Fix This issue has been fixed, ( 🤡 Lied about Further updates )
-
-### Update: Deprecation of Insecure Practic
-This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
-
-Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
-
-![image](https://github.com/user-attachments/assets/ed984ee0-8a6c-48ce-9c95-6db6b4ff2104)
-
 # GoDDos-Html
 
 GoDDos-Html is a lightweight web-page botnet controller written in Go, designed for simplicity by sending attacks to the 'Bots' / 'Servers' through a web-interface.
@@ -22,6 +12,16 @@ GoDDos-Html is a lightweight web-page botnet controller written in Go, designed 
 
 ## **Images / References 🖼️**
    `The images contain a domain: *Birdo.local*, which is a local domain set up for project testing.`
+
+Happy 2025 Fix This issue has been fixed, ( 🤡 Lied about Further updates )
+
+### Update: Deprecation of Insecure Practic
+This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
+
+Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
+
+![image](https://github.com/user-attachments/assets/ed984ee0-8a6c-48ce-9c95-6db6b4ff2104)
+
    
 ### ***Dashboard***:
 ![dashgit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4)
