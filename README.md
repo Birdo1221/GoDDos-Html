@@ -3,7 +3,7 @@
 
 ## 📌 Overview
 
-> **Note 2.0**: I have also updated this project so that is run on TLS / HTTPS, for that on lines 135 You will need to provide or create you own cert / key, easiest option would be via `openssl` or using `certbot` / `Letsencrypt`
+> **Note 2.0**: I have also updated this project so that is run on TLS / HTTPS, for that on lines 135 You will need to provide or create you own cert / key, easiest option would be via `openssl` or using `certbot` / `Letsencrypt`. And yes this is a fully working basic concept, with some example bots.
 
 GoDDos-Html is your average web-based botnet controller written in Go, designed to manage distributed denial-of-service (DDoS) attacks through an intuitive web interface. The system features secure user authentication, command distribution to connected bots, and real-time monitoring capabilities.
 
