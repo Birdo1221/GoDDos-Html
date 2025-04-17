@@ -37,8 +37,6 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 - Real-time statistics
 - Activity logging
 
-![profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a)
-
 ## 📸 Screenshots
 
 | Dashboard | Login | Register |
