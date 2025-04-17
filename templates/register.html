@@ -1,94 +1,552 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Security/DDoS Protection</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>REGISTER - Groovy </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
+        :root {
+            --neon-blue: #0ff0fc;
+            --neon-pink: #ff2a6d;
+            --neon-purple: #d300c5;
+            --dark-bg: #0d0221;
+            --darker-bg: #070113;
+            --terminal-green: #00ff41;
+            --terminal-yellow: #f9f002;
+            --glow: 0 0 10px;
+        }
+        
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
-        }
-
-        header {
-            background-color: #007bff;
-            color: #fff;
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        main {
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
             box-sizing: border-box;
-            margin-bottom: 20px;
         }
-
+        
+        body {
+            font-family: 'VT323', 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            color: var(--neon-blue);
+            line-height: 1.6;
+            letter-spacing: 1px;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* CRT Scanlines Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* Screen Flicker Animation */
+        @keyframes flicker {
+            0% { opacity: 0.9; }
+            5% { opacity: 0.8; }
+            10% { opacity: 0.95; }
+            15% { opacity: 0.87; }
+            20% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        
+        body {
+            animation: flicker 20s infinite;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+        
+        header {
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            position: relative;
+            z-index: 100;
+        }
+        
+        /* Glitch Effect */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+            animation: glitch 5s infinite;
+        }
+        
+        .logo i {
+            font-size: 2.2rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .back-link {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: var(--glow) var(--neon-blue);
+        }
+        
+        .back-link:hover {
+            color: var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        
+        .auth-container {
+            background-color: rgba(13, 2, 33, 0.7);
+            border-radius: 0;
+            box-shadow: 0 0 30px rgba(211, 0, 197, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            margin: 2rem;
+            border: 1px solid var(--neon-purple);
+            position: relative;
+        }
+        
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            background-size: 400%;
+            opacity: 0;
+            transition: 0.5s;
+        }
+        
+        .auth-container:hover::before {
+            opacity: 0.3;
+            animation: animate 8s linear infinite;
+        }
+        
+        @keyframes animate {
+            0% { background-position: 0 0; }
+            50% { background-position: 300% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h1 {
+            color: var(--terminal-green);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .auth-header p {
+            color: var(--neon-blue);
+            font-size: 1.3rem;
+        }
+        
+        .error-message {
+            color: var(--neon-pink);
+            background-color: rgba(255, 42, 109, 0.1);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+            border: 1px solid var(--neon-pink);
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-blue);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--neon-blue);
+            border-radius: 0;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(7, 1, 19, 0.5);
+            color: var(--terminal-green);
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .form-control:focus {
+            border-color: var(--terminal-green);
+            box-shadow: 0 0 10px var(--terminal-green);
+            outline: none;
+            background-color: rgba(7, 1, 19, 0.8);
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 5px;
+            background-color: rgba(7, 1, 19, 0.5);
+            border-radius: 0;
+            overflow: hidden;
+            border: 1px solid var(--neon-blue);
+        }
+        
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+        
         .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: 1.2rem;
             cursor: pointer;
-            background-color: #007bff;
-            color: #fff;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'VT323', monospace;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
-
-        .btn:hover {
-            background-color: #0056b3;
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background-color: transparent;
+            color: var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--terminal-green);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+        }
+        
+        .auth-footer a {
+            color: var(--terminal-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-footer a:hover {
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        footer {
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+        }
+        
+        .footer-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .copyright {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        /* Binary Rain Background */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 576px) {
+            .auth-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .back-link {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
-
 <body>
+    <!-- Binary Rain Background -->
+    <canvas id="binaryRain" class="binary-rain"></canvas>
+    
     <header>
-        <h1>Registration</h1>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-skull"></i>
+                    <span>Groovy </span>
+                </div>
+                <a href="/" class="back-link">
+                    <i class="fas fa-arrow-left"></i> BACK TO HOME
+                </a>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <h2>Create an Account</h2>
-        <form action="/register" method="post">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit" class="btn">Register</button>
-        </form>
-        <p>Already have an account? <a href="/login">Login</a></p>
-    </main>
-</body>
+    <div class="main-content">
+        <div class="auth-container">
+            <div class="auth-header">
+                <i class="fas fa-user-plus" style="font-size: 3rem; color: var(--terminal-green); margin-bottom: 1rem; text-shadow: var(--glow) var(--terminal-green);"></i>
+                <h1>>_ NEW USER REGISTRATION</h1>
+                <p>JOIN OUR SECURITY PLATFORM TO PROTECT YOUR DIGITAL ASSETS</p>
+            </div>
 
+            <div class="error-message" id="errorMessage" {{if .Error}}style="display: block;"{{end}}>
+                {{if .Error}}{{.Error}}{{else}}>_ ERROR: ACCOUNT CREATION FAILED{{end}}
+            </div>
+
+            <form action="/register" method="post" id="registerForm" enctype="application/x-www-form-urlencoded">
+                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                <div class="form-group">
+                    <label>>_ USERNAME</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="CHOOSE A USERNAME" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>>_ PASSWORD</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="CREATE A PASSWORD" required>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-meter" id="strengthMeter"></div>
+                    </div>
+                    <small style="color: var(--neon-blue); display: block; margin-top: 0.5rem;">
+                        >_ PASSWORD MUST BE AT LEAST 8 CHARACTERS LONG
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> REGISTER
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                >_ ALREADY HAVE AN ACCOUNT? <a href="/login">SIGN IN</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="copyright">© 1983 Groovy SYSTEMS | ALL RIGHTS RESERVED</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Binary Rain Background
+        const canvas = document.getElementById('binaryRain');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const binary = '01';
+        const columns = Math.floor(canvas.width / 20);
+        const drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height);
+        }
+        
+        function drawBinaryRain() {
+            ctx.fillStyle = 'rgba(13, 2, 33, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0ff0fc';
+            ctx.font = '15px Share Tech Mono';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = binary.charAt(Math.floor(Math.random() * binary.length));
+                ctx.fillText(text, i * 20, drops[i] * 20);
+                
+                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawBinaryRain, 50);
+        
+        // Password strength meter
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthMeter = document.getElementById('strengthMeter');
+            
+            // More comprehensive strength calculation
+            let strength = 0;
+            if (password.length >= 8) strength += 25;
+            if (password.length >= 12) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 15;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+            
+            strengthMeter.style.width = Math.min(strength, 100) + '%';
+            
+            if (strength < 40) {
+                strengthMeter.style.backgroundColor = 'var(--neon-pink)';
+            } else if (strength < 75) {
+                strengthMeter.style.backgroundColor = 'var(--terminal-yellow)';
+            } else {
+                strengthMeter.style.backgroundColor = 'var(--terminal-green)';
+            }
+        });
+
+        // Form submission handling
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                e.preventDefault();
+                errorMessage.textContent = '>_ ERROR: ALL FIELDS REQUIRED';
+                errorMessage.style.display = 'block';
+            } else if (password.length < 8) {
+                e.preventDefault();
+                errorMessage.textContent = '>_ ERROR: PASSWORD TOO WEAK (MIN 8 CHARS)';
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
+            });
+        });
+        
+        // Window resize handler for binary rain
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
 </html>

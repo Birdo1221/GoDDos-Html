@@ -1,61 +1,554 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Security/DDoS Protection</title>
+    <title>PROFILE - Groovy </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            line-height: 1.6;
+        :root {
+            --neon-blue: #0ff0fc;
+            --neon-pink: #ff2a6d;
+            --neon-purple: #d300c5;
+            --dark-bg: #0d0221;
+            --darker-bg: #070113;
+            --terminal-green: #00ff41;
+            --terminal-yellow: #f9f002;
+            --glow: 0 0 10px;
+        }
+        
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
         }
-
+        
+        body {
+            font-family: 'VT323', 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            color: var(--neon-blue);
+            line-height: 1.4;
+            letter-spacing: 1px;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* CRT Scanlines Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* Screen Flicker Animation */
+        @keyframes flicker {
+            0% { opacity: 0.9; }
+            5% { opacity: 0.8; }
+            10% { opacity: 0.95; }
+            15% { opacity: 0.87; }
+            20% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        
+        body {
+            animation: flicker 20s infinite;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+        
         header {
-            background-color: #007bff;
-            color: #fff;
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            position: relative;
+            z-index: 100;
+        }
+        
+        /* Glitch Effect */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+            animation: glitch 5s infinite;
+        }
+        
+        .logo i {
+            font-size: 2.2rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-shadow: var(--glow) var(--neon-blue);
+            position: relative;
+            font-size: 1.2rem;
+        }
+        
+        .nav-links a:hover {
+            color: var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+            background-color: rgba(0, 255, 65, 0.1);
+        }
+        
+        .nav-links a::after {
+            content: ']';
+            margin-left: 5px;
+        }
+        
+        .nav-links a::before {
+            content: '[';
+            margin-right: 5px;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .profile-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            flex: 1;
+            position: relative;
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 30px rgba(211, 0, 197, 0.3);
+            background-color: rgba(13, 2, 33, 0.7);
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+            color: white;
+            padding: 2rem;
             text-align: center;
-            padding: 20px 0;
+            position: relative;
+            border-bottom: 1px solid var(--neon-blue);
         }
-
-        main {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 0;
+            background-color: var(--darker-bg);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--terminal-green);
+            border: 2px solid var(--terminal-green);
+            box-shadow: 0 0 20px var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
         }
-
-        h2 {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        
+        .profile-header h1 {
+            margin-bottom: 0.5rem;
+            color: var(--terminal-green);
+            font-size: 2.5rem;
+            text-shadow: var(--glow) var(--terminal-green);
         }
-
-        p {
-            font-size: 1.1rem;
+        
+        .profile-header p {
+            color: var(--neon-blue);
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .profile-body {
+            padding: 2rem;
+        }
+        
+        .profile-section {
+            margin-bottom: 2rem;
+        }
+        
+        .profile-section h2 {
+            color: var(--terminal-green);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--neon-blue);
+            font-size: 1.8rem;
+            text-shadow: var(--glow) var(--terminal-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .info-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(7, 1, 19, 0.5);
+            border: 1px solid var(--neon-blue);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-item::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            background-size: 400%;
+            opacity: 0;
+            transition: 0.5s;
+        }
+        
+        .info-item:hover::before {
+            opacity: 0.3;
+            animation: animate 8s linear infinite;
+        }
+        
+        @keyframes animate {
+            0% { background-position: 0 0; }
+            50% { background-position: 300% 0; }
+            100% { background-position: 0 0; }
+        }
+        
+        .info-item label {
+            display: block;
+            font-weight: 600;
+            color: var(--neon-blue);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .info-item p {
+            font-size: 1.3rem;
+            color: white;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 0;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-family: 'VT323', monospace;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            border: none;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background-color: transparent;
+            color: var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--terminal-green);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            text-shadow: var(--glow) var(--neon-blue);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(15, 240, 252, 0.1);
+            color: var(--terminal-green);
+            border-color: var(--terminal-green);
+            text-shadow: var(--glow) var(--terminal-green);
+        }
+        
+        .btn-danger {
+            background-color: transparent;
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+            text-shadow: var(--glow) var(--neon-pink);
+        }
+        
+        .btn-danger:hover {
+            background-color: rgba(255, 42, 109, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        footer {
+            background-color: rgba(13, 2, 33, 0.8);
+            color: var(--neon-blue);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .copyright {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        /* Binary Rain Background */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                gap: 10px;
+            }
+            
+            .nav-links a {
+                font-size: 1rem;
+                padding: 0.3rem 0.5rem;
+            }
         }
     </style>
 </head>
-
 <body>
+    <!-- Binary Rain Background -->
+    <canvas id="binaryRain" class="binary-rain"></canvas>
+    
     <header>
-        <h1>User Profile</h1>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-skull"></i>
+                    <span>Groovy </span>
+                </div>
+                <div class="nav-links">
+                    <a href="/dashboard"><i class="fas fa-terminal"></i> DASHBOARD</a>
+                    <a href="/profile"><i class="fas fa-user-secret"></i> PROFILE</a>
+                    <a href="/logout"><i class="fas fa-power-off"></i> LOGOUT</a>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <main>
-        <h2>Welcome, {{ .Username }}</h2>
-        <p>This is your profile page. Update your settings here.</p>
-        <p>Username: {{ .Username }}</p>
-        <p><a href="/dashboard">Dashboard</a></p>
-        <p><a href="/logout">logout</a></p>
-    </main>
-</body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-secret"></i>
+            </div>
+            <h1>{{ .Username }}</h1>
+            <p>>_ SECURITY ADMINISTRATOR</p>
+        </div>
+        
+        <div class="profile-body">
+            <div class="profile-section">
+                <h2><i class="fas fa-id-card"></i> ACCOUNT INFORMATION</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>>_ USERNAME</label>
+                        <p>{{ .Username }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>>_ ACCOUNT TYPE</label>
+                        <p>DEFAULT</p>
+                    </div>
+                    <div class="info-item">
+                        <label>>_ MEMBER SINCE</label>
+                        <p>{{ .CreatedAt }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>>_ LAST LOGIN</label>
+                        <p>{{ .LastLogin }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2><i class="fas fa-shield-alt"></i> SECURITY</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>>_ TWO-FACTOR AUTHENTICATION</label>
+                        <p>ENABLED <span style="color: var(--terminal-green);"><i class="fas fa-check-circle"></i></span></p>
+                    </div>
+                    <div class="info-item">
+                        <label>>_ PASSWORD LAST CHANGED</label>
+                        <p>2 WEEKS AGO</p>
+                    </div>
+                    <div class="info-item">
+                        <label>>_ ACTIVE SESSIONS</label>
+                        <p>1 (THIS DEVICE)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/dashboard" class="btn btn-primary">
+                    <i class="fas fa-terminal"></i> GO TO DASHBOARD
+                </a>
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-cog"></i> SETTINGS
+                </a>
+                <a href="/logout" class="btn btn-danger">
+                    <i class="fas fa-power-off"></i> LOGOUT
+                </a>
+            </div>
+        </div>
+    </div>
 
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p class="copyright">© 1983 Groovy SYSTEMS | ALL RIGHTS RESERVED</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Binary Rain Background
+        const canvas = document.getElementById('binaryRain');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const binary = '01';
+        const columns = Math.floor(canvas.width / 20);
+        const drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height);
+        }
+        
+        function drawBinaryRain() {
+            ctx.fillStyle = 'rgba(13, 2, 33, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0ff0fc';
+            ctx.font = '15px Share Tech Mono';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = binary.charAt(Math.floor(Math.random() * binary.length));
+                ctx.fillText(text, i * 20, drops[i] * 20);
+                
+                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawBinaryRain, 50);
+        
+        // Window resize handler for binary rain
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Button loading state
+        document.querySelectorAll('a.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + this.textContent.trim();
+            });
+        });
+    </script>
+</body>
 </html>
