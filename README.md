@@ -23,6 +23,16 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 - Target validation (IP/port verification)
 - Attack duration control
 
+## 📸 Screenshots
+
+| Login | Register |
+|-------|----------|
+| ![Login](https://github.com/user-attachments/assets/311702c6-2534-4acb-b09a-abf52d619c99) | ![Register](https://github.com/user-attachments/assets/6d8953f6-bb2d-4c0c-a9a8-15e493aaafd2) |
+
+| Profile | Dashboard |
+|---------|-----------|
+| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) | ![Dashboard](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
+
 ### 🛡️ Security
 - Secure session storage
 - Password complexity enforcement
@@ -36,16 +46,6 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 - Interactive dashboard
 - Real-time statistics
 - Activity logging
-
-## 📸 Screenshots
-
-| Login | Register |
-|-------|----------|
-| ![Login](https://github.com/user-attachments/assets/311702c6-2534-4acb-b09a-abf52d619c99) | ![Register](https://github.com/user-attachments/assets/6d8953f6-bb2d-4c0c-a9a8-15e493aaafd2) |
-
-| Profile | Dashboard |
-|---------|-----------|
-| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) | ![Dashboard](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
 
 
 ## ⚙️ Technical Architecture
