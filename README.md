@@ -35,12 +35,11 @@ GoDDos-Html is a sophisticated web-based botnet controller written in Go, design
 - IP address filtering (blocks private/local targets)
 
 ### 🎨 User Interface
-- Retro 80s hacker-themed interface
+- Retro 80s Groovy hacker-themed interface
 - Responsive design
 - Interactive dashboard
 - Real-time statistics
 - Activity logging
-- Binary rain animation effect
 
 ## 📸 Screenshots
 
