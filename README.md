@@ -2,7 +2,7 @@
 
 ![Project Logo](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
 
-> **Note**: This project is deprecated but will try to maintain a security updates / Just when deprecated like this project. It is maintained for educational purposes only.
+> **Note**: This project is deprecated but will try to maintain a security updates. It is mainly maintained for educational purposes  only.
 
 ## 📌 Overview
 
