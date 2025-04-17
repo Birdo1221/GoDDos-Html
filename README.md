@@ -2,12 +2,11 @@
 
 ![Project Logo](https://github.com/user-attachments/assets/ee6bd4f1-fff1-4035-85fd-1f60667678a5)
 
-> **Note**: This project is deprecated but received a security update on 10/1/2025. It is maintained for educational purposes only.
+> **Note**: This project is deprecated but will try to maintain a security updates / Just when deprecated like this project. It is maintained for educational purposes only.
 
 ## 📌 Overview
 
-
-GoDDos-Html is a sophisticated web-based botnet controller written in Go, designed to manage distributed denial-of-service (DDoS) attacks through an intuitive web interface. The system features secure user authentication, command distribution to connected bots, and real-time monitoring capabilities.
+GoDDos-Html is your average web-based botnet controller written in Go, designed to manage distributed denial-of-service (DDoS) attacks through an intuitive web interface. The system features secure user authentication, command distribution to connected bots, and real-time monitoring capabilities.
 
 **Disclaimer**: This software is provided for educational and research purposes only. Misuse of this software for unauthorized activities is strictly prohibited.
 
@@ -42,15 +41,18 @@ GoDDos-Html is a sophisticated web-based botnet controller written in Go, design
 - Real-time statistics
 - Activity logging
 
+![profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a)
+
+
 ## 📸 Screenshots
 
 | Dashboard | Login | Register |
 |-----------|-------|----------|
-| ![Dashboard](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4) | ![Login](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/24408d12-c45d-4df2-897a-6f651de58be7) | ![Register](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/69f3d100-12d4-4d2c-ab58-03a3b8af2eac) |
+| ![Dashboard](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18) | ![Login](https://github.com/user-attachments/assets/311702c6-2534-4acb-b09a-abf52d619c99) | ![Register](https://github.com/user-attachments/assets/6d8953f6-bb2d-4c0c-a9a8-15e493aaafd2) |
 
 | Profile | Command Interface |
 |---------|-------------------|
-| ![Profile](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/55e52bfa-112f-4354-9c87-2df5bd87acae) | ![Command Interface](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/e9459072-2395-4cc1-944d-9fbcd10ac2de) |
+| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) |
 
 ## ⚙️ Technical Architecture
 
