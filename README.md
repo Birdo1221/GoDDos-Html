@@ -8,8 +8,6 @@
 
 GoDDos-Html is your average web-based botnet controller written in Go, designed to manage distributed denial-of-service (DDoS) attacks through an intuitive web interface. The system features secure user authentication, command distribution to connected bots, and real-time monitoring capabilities.
 
-**Disclaimer**: This software is provided for educational and research purposes only. Misuse of this software for unauthorized activities is strictly prohibited.
-
 ## 🚀 Features
 
 ### 🔒 Authentication System
@@ -22,7 +20,6 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 
 ### 🕹️ Botnet Control
 - Real-time bot connection monitoring
-- Command distribution to connected nodes
 - Multiple attack methods (HTTP Flood, UDP Flood, TCP SYN Flood)
 - Target validation (IP/port verification)
 - Attack duration control
@@ -42,7 +39,6 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 - Activity logging
 
 ![profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a)
-
 
 ## 📸 Screenshots
 
