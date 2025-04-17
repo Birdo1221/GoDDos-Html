@@ -1,7 +1,4 @@
 # GoDDos-Html - Botnet Web Controller
-
-![Project Logo](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
-
 > **Note**: This project is deprecated but will try to maintain a security updates. It is mainly maintained for educational purposes  only.
 
 ## 📌 Overview
@@ -50,7 +47,8 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 
 | Profile |
 |---------|
-| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) |
+| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) | ![Project Logo](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
+
 
 ## ⚙️ Technical Architecture
 
