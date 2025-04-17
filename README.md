@@ -39,13 +39,13 @@ GoDDos-Html is your average web-based botnet controller written in Go, designed 
 
 ## 📸 Screenshots
 
-| Dashboard | Login | Register |
-|-----------|-------|----------|
-| ![Dashboard](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18) | ![Login](https://github.com/user-attachments/assets/311702c6-2534-4acb-b09a-abf52d619c99) | ![Register](https://github.com/user-attachments/assets/6d8953f6-bb2d-4c0c-a9a8-15e493aaafd2) |
+| Login | Register |
+|-------|----------|
+| ![Login](https://github.com/user-attachments/assets/311702c6-2534-4acb-b09a-abf52d619c99) | ![Register](https://github.com/user-attachments/assets/6d8953f6-bb2d-4c0c-a9a8-15e493aaafd2) |
 
-| Profile | Logo |
-|---------|-------|
-| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) | ![Project Logo](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18)
+| Profile | Dashboard |
+|---------|-----------|
+| ![Profile](https://github.com/user-attachments/assets/058cc9fa-0c3c-47e6-8664-9fd143ec434a) | ![Dashboard](https://github.com/user-attachments/assets/7a5a07f5-5449-4d3a-bd06-ef33ebbdcb18))
 
 
 ## ⚙️ Technical Architecture
