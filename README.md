@@ -1,92 +1,90 @@
-## This Project is Deprecated
-### But Project has been given an update on based on (10/1/2025)
+# GoDDos-Html - Botnet Web Controller
 
-GoDDos-Html is a lightweight web-page botnet controller written in Go, designed for simplicity by sending attacks to the 'Bots' / 'Servers' through a web-interface.
+![Project Logo](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4)
 
-## Features
-- **User Management:** Authenticate and Register.
-- **Command Distribution:** Send distinct commands from the server to the bots.
-- **Secure Authentication:** Utilizes password hashing and session management.
-- **Easy Setup:** Straightforward steps to get started with minimal configuration.
+> **Note**: This project is deprecated but received a security update on 10/1/2025. It is maintained for educational purposes only.
 
-## **Images / References 🖼️**
-   `The images contain a domain: *Birdo.local*, which is a local domain set up for project testing.`
+## 📌 Overview
 
-## Happy 2025, This issue has been fixed, ( 🤡 Lied about no Further updates )
+GoDDos-Html is a sophisticated web-based botnet controller written in Go, designed to manage distributed denial-of-service (DDoS) attacks through an intuitive web interface. The system features secure user authentication, command distribution to connected bots, and real-time monitoring capabilities.
 
-`Misuse the ServerConfig.PublicKeyCallback callback` potential 'authorization bypass'  
-Go further down to read about.
-  
-### ***Dashboard***:
-![dashgit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4)
-![StartingGit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/177dc1fa-ab30-4e49-bc6d-3d8807c77c2a)
+**Disclaimer**: This software is provided for educational and research purposes only. Misuse of this software for unauthorized activities is strictly prohibited.
 
-### ***Register***:
-![Registergit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/69f3d100-12d4-4d2c-ab58-03a3b8af2eac)
+## 🚀 Features
 
-### ***Login***:
-![Logingit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/24408d12-c45d-4df2-897a-6f651de58be7)
+### 🔒 Authentication System
+- Secure user registration and login
+- Argon2id password hashing
+- Session management with secure cookies
+- CSRF protection
+- Rate limiting for login attempts
+- Account lockout after failed attempts
 
-### ***Profile***:
-![Profilegit2](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/55e52bfa-112f-4354-9c87-2df5bd87acae)
+### 🕹️ Botnet Control
+- Real-time bot connection monitoring
+- Command distribution to connected nodes
+- Multiple attack methods (HTTP Flood, UDP Flood, TCP SYN Flood)
+- Target validation (IP/port verification)
+- Attack duration control
 
-### ***Index***:
-![Logingit](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/e9459072-2395-4cc1-944d-9fbcd10ac2de)
+### 🛡️ Security
+- Secure session storage
+- Password complexity enforcement
+- Input validation and sanitization
+- Security headers (CSP, XSS Protection, etc.)
+- IP address filtering (blocks private/local targets)
 
-### Deprecation of Insecure Practic (Fixed 10/1/2025) 
-This involves the misuse of `ServerConfig.PublicKeyCallback`, leading to an authorization bypass in `golang.org/x/crypto`. If the `PublicKeyCallback` function is implemented to return `nil, nil` unconditionally, it execute a successful authentication without validating the client's public key.
+### 🎨 User Interface
+- Retro 80s hacker-themed interface
+- Responsive design
+- Interactive dashboard
+- Real-time statistics
+- Activity logging
+- Binary rain animation effect
 
-Although this was not an immediate issue in the project, it has been flagged for safety reasons. It's important to note that even minor vulnerabilities in code can lead to an unintended chain of issues. Therefore, it's get an update to help better security in the long term.
+## 📸 Screenshots
 
-![image](https://github.com/user-attachments/assets/ed984ee0-8a6c-48ce-9c95-6db6b4ff2104)
+| Dashboard | Login | Register |
+|-----------|-------|----------|
+| ![Dashboard](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/2858e11a-e3bf-4d37-a0c1-7ecc766b21a4) | ![Login](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/24408d12-c45d-4df2-897a-6f651de58be7) | ![Register](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/69f3d100-12d4-4d2c-ab58-03a3b8af2eac) |
 
+| Profile | Command Interface |
+|---------|-------------------|
+| ![Profile](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/55e52bfa-112f-4354-9c87-2df5bd87acae) | ![Command Interface](https://github.com/Birdo1221/GoDDos-Html/assets/81320346/e9459072-2395-4cc1-944d-9fbcd10ac2de) |
 
-## Getting Started
+## ⚙️ Technical Architecture
 
-To deploy and use GoDDos-Html, follow these steps:
+### Backend Components
+- **Web Server**: Go HTTP server with Gorilla toolkit
+- **Authentication**: Session-based with secure cookies
+- **Database**: JSON file storage (users.json)
+- **Bot Communication**: TCP listener on port 9080
+- **Security Middleware**: CSRF protection, rate limiting
 
-* You will need to set up the MySQL database before running the `./web-controller`.
-* Change port and IP if needed on Line 35.
+### Frontend Components
+- **Templates**: HTML with Go templating
+- **Styling**: Custom CSS with neon effects
+- **Animations**: Canvas-based binary rain
+- **Interactive Elements**: JavaScript form validation
 
-   ### 1. **Clone the Repository:**
+### Security Measures
+- Password hashing with Argon2id
+- Secure session management
+- CSRF tokens for all forms
+- Rate limiting for authentication endpoints
+- Input validation for all commands
+- IP address filtering
+
+## 🛠️ Installation
+
+### Prerequisites
+- Go 1.20+ installed
+- MySQL (optional for production)
+- Basic firewall configuration
+
+### Setup Instructions
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/Birdo1221/GoDDos-Html.git
    cd GoDDos-Html
-   go build -o web-controller
-   ./web-controller
-   ```
-
-# 2. **Mysql Set-up:**
-
-   ```sql
-   CREATE DATABASE IF NOT EXISTS net1;
-   
-   USE net1;
-   CREATE TABLE IF NOT EXISTS users (
-       id INT AUTO_INCREMENT PRIMARY KEY,
-       username VARCHAR(50) UNIQUE NOT NULL,
-       password_hash VARCHAR(60) NOT NULL
-   );
-   
-   CREATE TABLE IF NOT EXISTS sessions (
-       id INT AUTO_INCREMENT PRIMARY KEY,
-       user_id INT NOT NULL,
-       FOREIGN KEY (user_id) REFERENCES users(id),
-       session_key VARCHAR(60) UNIQUE NOT NULL
-   );
-   ```
-
-# 3. **Access the Web Interface:**
-   - Open your web browser and navigate to http://localhost:80. If you change the IP/PORT, just head to that.
- 
-# 4. **Dependencies / Configuration:**
-- **Go + MySQL:** Ensure Go and MySQL are installed and accessible.
-- **Database Configuration:** Configure the database connection in the `initDB()` function.
-  
-# 5. **Usage:**
-- Register a user account to access the controller dashboard.
-- Login with your credentials to access the dashboard.
-- Use the dashboard to send commands to connected bots.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
